@@ -51,4 +51,24 @@ class Student
     DB[:conn].execute(sql)
   end
 
+  def self.table_name
+    "#{self.to_s.downcase}s"
+  end
+
+  def self.reify_from_row(row)
+    self.new(row[1], row[2], row[0])
+  end
+
+  def self.find_by_name(name)
+    sql = "SELECT * FROM #{table_name} WHERE name = ?"
+    reify_from_row(DB[:conn].execute(sql, name)[0])
+  end
+
+  def self.find_by(option={})
+    sql = "SELECT * FROM #{table_name} WHERE #{option.keys.first} = ?"
+    binding.pry
+    DB[:conn].execute(sql, option.values.first).collect {|row|
+      reify_from_row(row)
+    }
+  end
 end
